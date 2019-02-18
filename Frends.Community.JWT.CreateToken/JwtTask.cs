@@ -13,7 +13,7 @@ namespace Frends.Community.JWT
         /// Create a JWT token with specified parameteres
         /// </summary>
         /// <param name="parameters">Parameters for the token creation</param>
-        /// <returns></returns>
+        /// <returns>string</returns>
         public static string CreateJwtToken(CreateJwtTokenParameters parameters)
         {
             var handler = new JwtSecurityTokenHandler();

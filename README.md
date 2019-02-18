@@ -1,4 +1,4 @@
-# Frends.Community.SQL.QueryToFile
+# Frends.Community.JWT.CreateToken
 Frends task for creating signed JWT tokens.
 
 - [Installing](#installing)
@@ -11,7 +11,7 @@ Frends task for creating signed JWT tokens.
 
 # Installing
 You can install the task via FRENDS UI Task View or you can find the nuget package from the following nuget feed
-'Nuget feed coming at later date'
+https://www.myget.org/F/frends-community/api/v3/index.json
 
 Tasks
 =====

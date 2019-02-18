@@ -20,5 +20,6 @@
     </metadata>
   <files>
     <file src="..\Frends.Community.JWT.CreateToken\bin\Release\netstandard2.0\Frends.Community.JWT.CreateToken.dll" target="lib\netstandard2.0\Frends.Community.JWT.CreateToken.dll" />
+    <file src="..\Frends.Community.JWT.CreateToken\bin\Release\netstandard2.0\Frends.Community.JWT.CreateToken.xml" target="lib\netstandard2.0\Frends.Community.JWT.CreateToken.xml" />
   </files>
 </package>
