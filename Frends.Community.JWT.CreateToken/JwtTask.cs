@@ -10,7 +10,7 @@ namespace Frends.Community.JWT
     public class JwtTask
     {
         /// <summary>
-        /// Create a JWT token with specified parameteres
+        /// Create a JWT token with specified parameters. Documentation: https://github.com/CommunityHiQ/Frends.Community.JWT.CreateToken
         /// </summary>
         /// <param name="parameters">Parameters for the token creation</param>
         /// <returns>string</returns>
