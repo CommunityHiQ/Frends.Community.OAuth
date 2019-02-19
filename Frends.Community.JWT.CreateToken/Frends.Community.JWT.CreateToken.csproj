@@ -10,7 +10,13 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\galkios\OneDrive - HiQ Finland Oy\Frends&amp;Co sources\Frends.Community.JWT.CreateToken\Frends.Community.JWT.CreateToken\Frends.Community.JWT.CreateToken.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Frends.Community.JWT.CreateToken.xml</DocumentationFile>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\Frends.Community.JWT.CreateToken.xml</DocumentationFile>
+    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
