@@ -4,7 +4,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Frends.Community.JWT</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Authors>Jefim Borissov</Authors>
     <Company>HiQ</Company>
     <Product />
