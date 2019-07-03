@@ -3,7 +3,7 @@
   <metadata>
     <id>Frends.Community.JWT.CreateToken</id>
   <version>1.0.0</version>
-  <title>Frends QueryToFile</title>
+  <title>Frends Create JWT Token</title>
   <authors>HiQ Finland</authors>
   <owners />
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
