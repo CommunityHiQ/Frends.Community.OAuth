@@ -1,0 +1,10 @@
+﻿{
+  "Tasks": [
+    {
+      "TaskMethod": "Frends.Community.OAuth.Validator.Validate"
+    },
+    {
+      "TaskMethod": "Frends.Community.OAuth.Validator.ParseToken"
+    }
+  ]
+}
