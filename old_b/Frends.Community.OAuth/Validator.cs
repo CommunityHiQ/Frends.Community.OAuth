@@ -99,5 +99,24 @@ namespace Frends.Community.OAuth
                 Token = validatedToken,
             };
         }
+
+        /// <summary>
+        /// Parses a string into an instance of JwtSecurityToken.
+        /// 
+        /// If the 'jwtToken' is in JWE Compact Serialization format, only the protected header will be deserialized. Use ParseToken() to obtain the payload.
+        /// 
+        /// JwtSecurityToken see: https://docs.microsoft.com/en-us/dotnet/api/system.identitymodel.tokens.jwt.jwtsecuritytoken?view=azure-dotnet
+        /// </summary>
+        /// <param name="input">Parameters for the token parsing.</param>
+        /// <returns>JwtSecurityToken</returns>
+        public static dynamic ReadToken([PropertyTab] ReadTokenInput input)
+        {
+            if(input == null )
+            {
+                return null;
+            }
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            return handler.ReadJwtToken(input.JWTToken);
+        }
     }
 }

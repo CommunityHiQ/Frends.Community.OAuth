@@ -12,6 +12,9 @@ FRENDS community Task for validating and parsing OAuth JWT tokens
         - [Input](#input)
         - [Options](#options)
         - [Output](#output)
+ 	- [ReadToken](#readtoken)
+        - [Input](#input)
+        - [Output](#output)
 - [Building](#building)
 - [Contributing](#contributing)
 - [Change Log](#change-log)
@@ -75,6 +78,25 @@ Parses the provided OAuth JWT token or Authorization header with the option of s
 | ClaimPrincipal | [System.Security.Claims.ClaimsPrincipal](https://docs.microsoft.com/en-us/dotnet/api/system.security.claims.claimsprincipal?view=netframework-4.7.2) | The ClaimsPrincipal parsed from the token | |
 | Token | [System.IdentityModel.Tokens.JwtSecurityToken](https://msdn.microsoft.com/en-us/library/system.identitymodel.tokens.jwtsecuritytoken(v=vs.114).aspx) | The token. If you want the token as a string use .ToString() method (e.g. #result.Token.ToString()) |  |
 
+
+
+## ReadToken
+
+Parses a string into an JwtSecurityToken.
+
+### Input
+
+| Property | Type | Description | Example |
+| ---------|------|-------------|---------|
+| JWTToken | String | A 'JSON Web Token' (JWT) in JWS or JWE Compact Serialization Format. | eyJ0eXAi... |
+
+### Output
+
+| Property | Type | Description | Example |
+| ---------|------|-------------|---------|
+|  value | [JwtSecurityToken](https://docs.microsoft.com/en-us/dotnet/api/system.identitymodel.tokens.jwt.jwtsecuritytoken?view=azure-dotnet) | The token | |
+
+
 # Building
 Clone a copy of the repo
 
@@ -108,3 +130,4 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 | Version | Changes |
 | ----- | ----- |
 | 1.0.0 | Initial version of OAuth Task |
+| 1.0.1 | ReadToken added |

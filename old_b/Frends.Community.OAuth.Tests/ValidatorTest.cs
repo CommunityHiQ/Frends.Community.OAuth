@@ -50,5 +50,31 @@ namespace Frends.Community.OAuth.Tests
                 new ParseOptions{SkipLifetimeValidation = true}, 
                 CancellationToken.None).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Read token and get Issuer
+        /// </summary>
+        [Test]
+        public void ReadToken_ShouldGetData()
+        {
+            var input = new ReadTokenInput() { JWTToken = AuthHeader.Replace("Bearer ", "") };
+            var token = Validator.ReadToken(input);
+            Assert.AreEqual(token.Issuer, "https://frends.eu.auth0.com/");
+        }
+
+        private const string JwtExampleToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+
+        /// <summary>
+        /// Read short token and get multiple datas
+        /// </summary>
+        [Test]
+        public void ReadToken_ShouldGetDataFromShortToken()
+        {
+            var input = new ReadTokenInput() { JWTToken = JwtExampleToken };
+            var token = Validator.ReadToken(input);
+            Assert.AreEqual(token.SignatureAlgorithm, "HS256");
+            Assert.AreEqual(token.Issuer, null);
+            Assert.AreEqual(token.Payload["name"], "John Doe");
+        }
     }
 }

@@ -5,6 +5,9 @@
     },
     {
       "TaskMethod": "Frends.Community.OAuth.Validator.ParseToken"
+    },
+    {
+      "TaskMethod": "Frends.Community.OAuth.Validator.ReadToken"
     }
   ]
 }

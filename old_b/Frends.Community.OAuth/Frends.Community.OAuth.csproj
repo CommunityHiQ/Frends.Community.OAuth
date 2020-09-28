@@ -68,6 +68,7 @@
     <Compile Include="Models\ConfigurationSource.cs" />
     <Compile Include="Models\ParseOptions.cs" />
     <Compile Include="Models\ParseResult.cs" />
+    <Compile Include="Models\ReadTokenInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\ValidateInput.cs" />
     <Compile Include="Validator.cs" />
