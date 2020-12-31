@@ -115,7 +115,7 @@ namespace Frends.Community.OAuth
     public class ParseResult
     {
         /// <summary>
-        /// A claim-based identity.
+        /// A claim-based identity parsed from the token.
         /// </summary>
         public ClaimsPrincipal ClaimsPrincipal { get; set; }
 

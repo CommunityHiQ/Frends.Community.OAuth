@@ -1,12 +1,14 @@
 # Frends.Community.OAuth
 
-frends Community Task for OAuth
+frends Community Task for OAuth.
 
 [![Actions Status](https://github.com/CommunityHiQ/Frends.Community.OAuth/workflows/PackAndPushAfterMerge/badge.svg)](https://github.com/CommunityHiQ/Frends.Community.OAuth/actions) ![MyGet](https://img.shields.io/myget/frends-community/v/Frends.Community.OAuth) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
 - [Installing](#installing)
 - [Tasks](#tasks)
-     - [OAuth](#OAuth)
+     - [ParseToken](#ParseToken)
+     - [ReadToken](#ReadToken)
+     - [Validate](#Validate)
 - [Building](#building)
 - [Contributing](#contributing)
 - [Change Log](#change-log)
@@ -18,35 +20,75 @@ https://www.myget.org/F/frends-community/api/v3/index.json and in Gallery view i
 
 # Tasks
 
-## OAuth
+## ParseToken
 
-Repeats a message
+Parses the provided OAuth JWT token or Authorization header. There is an option to skip validations.
 
-### Properties
+### Input
 
 | Property | Type | Description | Example |
-| -------- | -------- | -------- | -------- |
-| Message | `string` | Some string that will be repeated. | `foo` |
+| ---------|------|-------------|---------|
+| AuthHeaderOrToken | `string` | Either the JWT token or the AuthHeader through #trigger.data.httpHeaders["Authorization"] | `eyJ0eXAi...` |
+| Audience | `string` | The expected Audiences of the token, e.g. ClientId | `fIVLouKUZihXfYP3...` |
+| Issuer | `string` | The expected Issuer of the token | `https://example.eu.auth0.com` |
+| ConfigurationSource | enum<WellKnownConfigurationUrl, Static> | Option whether to use .well-known or a static jwks configuration | WellKnownConfigurationUrl |
+| WellKnownConfigurationUrl | `string` | .well-known configuration URL | `https://example.eu.auth0.com/.well-known/openid-configuration` |
+| StaticJwksConfiguration | `string` | Staticly provided public keys used to sign the token | `{\"keys\":[{\"alg\":\"RS256\",\"kty\":\"RSA\",\"use\":\"sig\",\"x5c\":[\"MIIDATC...` |
 
 ### Options
 
 | Property | Type | Description | Example |
-| -------- | -------- | -------- | -------- |
-| Amount | `int` | Amount how many times message is repeated. | `3` |
-| Delimiter | `string` | Character(s) used between replications. | `, ` |
+| ---------|------|-------------|---------|
+| SkipIssuerValidation | `bool` | Should issuer validation be skipped | `false` |
+| SkipAudienceValidation | `bool` | Should audience validation be skipped | `false` |
+| SkipLifetimeValidation | `bool` | Should lifetime validation be skipped | `false` |
 
-### Returns
-
-A result object with parameters.
+### Result
 
 | Property | Type | Description | Example |
-| -------- | -------- | -------- | -------- |
-| Replication | `string` | Repeated string. | `foo, foo, foo` |
+| ---------|------|-------------|---------|
+| ClaimPrincipal | [ClaimsPrincipal](https://docs.microsoft.com/en-us/dotnet/api/system.security.claims.claimsprincipal?view=netframework-4.7.2) | The ClaimsPrincipal parsed from the token. | |
+| Token | [JwtSecurityToken](https://msdn.microsoft.com/en-us/library/system.identitymodel.tokens.jwtsecuritytoken(v=vs.114).aspx) | The validated security token. If you want the token as a string use .ToString() method (e.g. #result.Token.ToString()) |  |
 
-Usage:
-To fetch result use syntax:
+## ReadToken
 
-`#result.Replication`
+Parses a string into an JwtSecurityToken.
+
+### Input
+
+| Property | Type | Description | Example |
+| ---------|------|-------------|---------|
+| JWTToken | `string` | A 'JSON Web Token' (JWT) in JWS or JWE Compact Serialization Format. | `eyJ0eXAi...` |
+
+### Result
+
+| Type | Description | Example |
+| ------|-------------|---------|
+|  [JwtSecurityToken](https://docs.microsoft.com/en-us/dotnet/api/system.identitymodel.tokens.jwt.jwtsecuritytoken?view=azure-dotnet) | The security token. If you want the token as a string use .ToString() method (e.g. #result.ToString()) | |
+
+## Validate
+
+Validates the provided OAuth JWT token or the authorization header.
+
+### Input
+
+| Property | Type | Description | Example |
+| ---------|------|-------------|---------|
+| AuthHeaderOrToken | `string` | Either the JWT token or the AuthHeader through #trigger.data.httpHeaders["Authorization"] | `eyJ0eXAi...` |
+| Audience | `string` | The expected Audiences of the token, e.g. ClientId | `fIVLouKUZihXfYP3...` |
+| Issuer | `string` | The expected Issuer of the token | `https://example.eu.auth0.com` |
+| ConfigurationSource | enum<WellKnownConfigurationUrl, Static> | Option whether to use .well-known or a static jwks configuration | WellKnownConfigurationUrl |
+| WellKnownConfigurationUrl | `string` | .well-known configuration URL | `https://example.eu.auth0.com/.well-known/openid-configuration` |
+| StaticJwksConfiguration | `string` | Staticly provided public keys used to sign the token | `{\"keys\":[{\"alg\":\"RS256\",\"kty\":\"RSA\",\"use\":\"sig\",\"x5c\":[\"MIIDATC...` |
+
+### Result
+
+The result is an object with following properties
+
+| Property | Type | Description | Example |
+| ---------|------|-------------|---------|
+| ClaimPrincipal | [ClaimsPrincipal](https://docs.microsoft.com/en-us/dotnet/api/system.security.claims.claimsprincipal?view=netframework-4.7.2) | The ClaimsPrincipal parsed from the token. | |
+| Token | [JwtSecurityToken](https://msdn.microsoft.com/en-us/library/system.identitymodel.tokens.jwtsecuritytoken(v=vs.114).aspx) | The validated security token. If you want the token as a string use .ToString() method (e.g. #result.Token.ToString()) |  |
 
 # Building
 
@@ -81,4 +123,4 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
 | Version | Changes |
 | ------- | ------- |
-| 0.0.1   | Development still going on |
+| 1.0.0   | frends.community.OAuth.Validate and frends.community.JWT.CreateToken merged as one task collection. |
