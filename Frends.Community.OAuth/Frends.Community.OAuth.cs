@@ -4,7 +4,6 @@ using System.Threading;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Frends.Community.OAuth.Models;
 using Microsoft.CSharp;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Protocols;
@@ -17,6 +16,9 @@ namespace Frends.Community.OAuth
 {
     public static class OAuth
     {
+        private static readonly ConcurrentDictionary<string, IConfigurationManager<OpenIdConnectConfiguration>> ConfigurationManagerCache = new ConcurrentDictionary<string, IConfigurationManager<OpenIdConnectConfiguration>>();
+        private static readonly SemaphoreSlim InitLock = new SemaphoreSlim(1, 1);
+
         /// <summary>
         /// Validates the provided OAuth JWT token or Authorization header. Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth/
         /// </summary>
@@ -81,8 +83,6 @@ namespace Frends.Community.OAuth
             return handler.ReadJwtToken(input.JWTToken);
         }
 
-        private static readonly ConcurrentDictionary<string, IConfigurationManager<OpenIdConnectConfiguration>> ConfigurationManagerCache = new ConcurrentDictionary<string, IConfigurationManager<OpenIdConnectConfiguration>>();
-        private static readonly SemaphoreSlim InitLock = new SemaphoreSlim(1, 1);
         private static async Task<OpenIdConnectConfiguration> GetConfiguration(ValidateInput input, CancellationToken cancellationToken)
         {
             if (input.ConfigurationSource == ConfigurationSource.Static)
@@ -117,72 +117,6 @@ namespace Frends.Community.OAuth
             }
 
             return await configurationManager.GetConfigurationAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /// <summary>
-        /// This is task
-        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth
-        /// </summary>
-        /// <param name="input">What to repeat.</param>
-        /// <param name="options">Define if repeated multiple times. </param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>{string Replication} </returns>
-        public static Result ExecuteOAuth(Parameters input, [PropertyTab] Options options, CancellationToken cancellationToken)
-        {
-            var repeats = new string[options.Amount];
-
-            for (var i = 0; i < options.Amount; i++)
-            {
-                // It is good to check the cancellation token somewhere you spend lot of time, e.g. in loops.
-                cancellationToken.ThrowIfCancellationRequested();
-
-                repeats[i] = input.Message;
-            }
-
-            var output = new Result
-            {
-                Replication = string.Join(options.Delimiter, repeats)
-            };
-
-            return output;
         }
     }
 }
