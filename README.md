@@ -34,7 +34,7 @@ Task creates a signed JWT token.
 | Expires | `DateTime?` | The expiration time on or after which the JWT must not be accepted for processing. | `DateTime.Now.AddDays(7)` |
 | NotBefore | `DateTime?` | The time before which the JWT must not be accepted for processing. | `DateTime.Now.AddDays(7)` |
 | PrivateKey | `string` | Private key in PEM format | See https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail
-| Claims | `JwtClaim[]` | Subject for the token. If you need an array with values then just add multiple claims with same keys/names. | `[`<br/>`{ "Name", "John Doe" },`<br/>`{ "EMail", "john@example.com" },`<br/>`{ "Roles", "admin" },`<br/>`{ "Roles", "user" }`<br/>`]`
+| Claims | `JwtClaim[]` | Claim(s) that identifiy the principal that is the subject of the JWT. Multiple claims with same keys/names can be added. Claims are optional. | `[`<br/>`{ "Name", "John Doe" },`<br/>`{ "EMail", "john@example.com" },`<br/>`{ "Roles", "admin" },`<br/>`{ "Roles", "user" }`<br/>`]`
 
 #### JwtClaim
 
