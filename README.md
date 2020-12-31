@@ -6,6 +6,7 @@ frends Community Task for OAuth.
 
 - [Installing](#installing)
 - [Tasks](#tasks)
+     - [CreateJwtToken](#CreateJwtToken)
      - [ParseToken](#ParseToken)
      - [ReadToken](#ReadToken)
      - [Validate](#Validate)
@@ -19,6 +20,36 @@ You can install the Task via frends UI Task View or you can find the NuGet packa
 https://www.myget.org/F/frends-community/api/v3/index.json and in Gallery view in MyGet https://www.myget.org/feed/frends-community/package/nuget/Frends.Community.OAuth
 
 # Tasks
+
+## CreateJwtToken
+
+Task creates a signed JWT token.
+
+### Parameters
+
+| Property             | Type                 | Description                          | Example |
+| ---------------------| ---------------------| ------------------------------------ | ----- |
+| Issuer | `string` | Principal that issued the JWT. | `COOL_ISSUER` |
+| Audience | `string` | The recipient(s) the JWT is intended for. | `COOL_AUDIENCE` |
+| Expires | `DateTime?` | The expiration time on or after which the JWT must not be accepted for processing. | `DateTime.Now.AddDays(7)` |
+| NotBefore | `DateTime?` | The time before which the JWT must not be accepted for processing. | `DateTime.Now.AddDays(7)` |
+| PrivateKey | `string` | Private key in PEM format | See https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail
+| Claims | `JwtClaim[]` | Subject for the token. If you need an array with values then just add multiple claims with same keys/names. | `[`<br/>`{ "Name", "John Doe" },`<br/>`{ "EMail", "john@example.com" },`<br/>`{ "Roles", "admin" },`<br/>`{ "Roles", "user" }`<br/>`]`
+
+#### JwtClaim
+
+Each identifies the principal that is the subject of the JWT.
+
+| Property             | Type                 | Description                          | Example |
+| ---------------------| ---------------------| ------------------------------------ | ----- |
+| ClaimKey | `string` | Key value for the claim. | `COOL_ISSUER` |
+| ClaimValue | `string` | The value paired with the given key. | `COOL_AUDIENCE` |
+
+### Result
+
+| Type | Description | Example |
+| ------|-------------|---------|
+| `string` | The JWT token signed with the provided private key. | |
 
 ## ParseToken
 

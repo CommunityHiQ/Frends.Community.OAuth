@@ -9,12 +9,83 @@ using Microsoft.IdentityModel.Tokens;
 namespace Frends.Community.OAuth
 {
     /// <summary>
-    /// The enumerator for the configuration source.
+    /// Input parameters for CreateJwtToken task.
     /// </summary>
-    public enum ConfigurationSource
+    public class CreateJwtTokenInput
     {
-        WellKnownConfigurationUrl,
-        Static
+        /// <summary>
+        /// Value for "iss" (Issuer) Claim
+        /// </summary>
+        [DisplayFormat(DataFormatString = "Text")]
+        [DefaultValue("ISSUER")]
+        public string Issuer { get; set; }
+
+        /// <summary>
+        /// Value for "aud" (Audience) Claim
+        /// </summary>
+        [DisplayFormat(DataFormatString = "Text")]
+        [DefaultValue("AUDIENCE")]
+        public string Audience { get; set; }
+
+        /// <summary>
+        /// Value for "exp" (Expiration Time) Claim
+        /// </summary>
+        [DefaultValue("DateTime.Now.AddDays(7)")]
+        public DateTime? Expires { get; set; }
+
+        /// <summary>
+        /// Value for "nbf" (Not Before) Claim
+        /// </summary>
+        [DefaultValue("DateTime.Now.AddDays(1)")]
+        public DateTime? NotBefore { get; set; }
+
+        /// <summary>
+        /// Private key for signing. The key should be in PEM format.
+        /// </summary>
+        [PasswordPropertyText]
+        public string PrivateKey { get; set; }
+
+        /// <summary>
+        /// Value(s) for "sub" (Subject) Claim. Multiple claims with same keys/names can be added. Claims are optional.
+        /// </summary>
+        public JwtClaim[] Claims { get; set; }
+    }
+
+    /// <summary>
+    /// Options for method ParseToken().
+    /// </summary>
+    public class ParseOptions
+    {
+        /// <summary>
+        /// Should the issuer (iss) validation be skipped
+        /// </summary>
+        public bool SkipIssuerValidation { get; set; }
+
+        /// <summary>
+        /// Should audience (aud) validation be skipped
+        /// </summary>
+        public bool SkipAudienceValidation { get; set; }
+
+        /// <summary>
+        /// Should lifetime (exp,nbf) validation be skipped 
+        /// </summary>
+        public bool SkipLifetimeValidation { get; set; }
+    }
+
+    /// <summary>
+    /// The result object for method ParseToken().
+    /// </summary>
+    public class ParseResult
+    {
+        /// <summary>
+        /// A claim-based identity parsed from the token.
+        /// </summary>
+        public ClaimsPrincipal ClaimsPrincipal { get; set; }
+
+        /// <summary>
+        /// A validated security token.
+        /// </summary>
+        public SecurityToken Token { get; set; }
     }
 
     /// <summary>
@@ -33,7 +104,7 @@ namespace Frends.Community.OAuth
     /// <summary>
     /// Input parameters for Validate task.
     /// </summary>
-    public class ValidateInput
+    public class ValidateParseInput
     {
         internal string GetToken()
         {
@@ -70,6 +141,10 @@ namespace Frends.Community.OAuth
         [DefaultValue("https://xyz.eu.auth0.com/")]
         public string Issuer { get; set; }
 
+        /// <summary>
+        /// The configuration source.
+        /// </summary>
+        [DefaultValue(ConfigurationSource.Static)]
         public ConfigurationSource ConfigurationSource { get; set; }
 
         /// <summary>
@@ -89,39 +164,27 @@ namespace Frends.Community.OAuth
     }
 
     /// <summary>
-    /// Options for method ParseToken().
+    /// The enumerator for the configuration source.
     /// </summary>
-    public class ParseOptions
+    public enum ConfigurationSource
     {
-        /// <summary>
-        /// Should the issuer (iss) validation be skipped
-        /// </summary>
-        public bool SkipIssuerValidation { get; set; }
-        
-        /// <summary>
-        /// Should audience (aud) validation be skipped
-        /// </summary>
-        public bool SkipAudienceValidation { get; set; }
-        
-        /// <summary>
-        /// Should lifetime (exp,nbf) validation be skipped 
-        /// </summary>
-        public bool SkipLifetimeValidation { get; set; }
+        WellKnownConfigurationUrl,
+        Static
     }
 
     /// <summary>
-    /// The result object for method ParseToken().
+    /// Class for describing of a single claim
     /// </summary>
-    public class ParseResult
+    public class JwtClaim
     {
         /// <summary>
-        /// A claim-based identity parsed from the token.
+        /// Claim key
         /// </summary>
-        public ClaimsPrincipal ClaimsPrincipal { get; set; }
+        public string ClaimKey { get; set; }
 
         /// <summary>
-        /// A validated security token.
+        /// Claim value
         /// </summary>
-        public SecurityToken Token { get; set; }
+        public string ClaimValue { get; set; }
     }
 }

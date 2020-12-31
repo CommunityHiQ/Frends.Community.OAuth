@@ -1,7 +1,16 @@
 ﻿{
 	"Tasks": [
 		{
-			"TaskMethod": "Frends.Community.OAuth.OAuth.ExecuteOAuth"
+			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.CreateJwtToken"
+		},
+		{
+			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.ParseToken"
+		},
+		{
+			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.ReadToken"
+		},
+		{
+			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.Validate"
 		}
 	]
 }
