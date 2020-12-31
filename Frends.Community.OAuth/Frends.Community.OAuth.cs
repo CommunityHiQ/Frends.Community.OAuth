@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Frends.Community.OAuth
 {
-    public static class OAuthTasks
+    public class OAuthTasks
     {
         private static readonly ConcurrentDictionary<string, IConfigurationManager<OpenIdConnectConfiguration>> ConfigurationManagerCache = new ConcurrentDictionary<string, IConfigurationManager<OpenIdConnectConfiguration>>();
         private static readonly SemaphoreSlim InitLock = new SemaphoreSlim(1, 1);
