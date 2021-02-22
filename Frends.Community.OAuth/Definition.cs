@@ -89,7 +89,7 @@ namespace Frends.Community.OAuth
     }
 
     /// <summary>
-    /// Input parameters for ReadToken task.
+    /// Input parameters for ReadJwtToken task.
     /// </summary>
     public class ReadTokenInput
     {
@@ -98,11 +98,11 @@ namespace Frends.Community.OAuth
         /// </summary>
         [DisplayFormat(DataFormatString = "Text")]
         [DefaultValue("")]
-        public string JWTToken { get; set; }
+        public string JwtToken { get; set; }
     }
 
     /// <summary>
-    /// Input parameters for Validate task.
+    /// Input parameters for ValidateToken and ParseToken tasks.
     /// </summary>
     public class ValidateParseInput
     {

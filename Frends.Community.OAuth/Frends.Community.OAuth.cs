@@ -85,7 +85,7 @@ namespace Frends.Community.OAuth
                     ValidateAudience = !options.SkipAudienceValidation,
                     ValidateIssuer = !options.SkipIssuerValidation
                 };
-            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var handler = new JwtSecurityTokenHandler();
             var user = handler.ValidateToken(input.GetToken(), validationParameters, out var validatedToken);
 
             return new ParseResult
@@ -97,30 +97,30 @@ namespace Frends.Community.OAuth
 
         /// <summary>
         /// Parses a string into an instance of JwtSecurityToken.
-        /// If the 'jwtToken' is in JWE Compact Serialization format, only the protected header will be deserialized. Use ParseToken() to obtain the payload.
-        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ReadToken
+        /// If the 'jwtToken' is in JWE Compact Serialization format, only the protected header will be deserialized. Use ParseToken to obtain the payload.
+        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ReadJwtToken
         /// JwtSecurityToken see: https://docs.microsoft.com/en-us/dotnet/api/system.identitymodel.tokens.jwt.jwtsecuritytoken?view=azure-dotnet
         /// </summary>
         /// <param name="input">Parameters for the token parsing.</param>
         /// <returns>JwtSecurityToken</returns>
-        public static dynamic ReadToken([PropertyTab] ReadTokenInput input)
+        public static dynamic ReadJwtToken([PropertyTab] ReadTokenInput input)
         {
             if (input == null)
             {
                 return null;
             }
-            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-            return handler.ReadJwtToken(input.JWTToken);
+            var handler = new JwtSecurityTokenHandler();
+            return handler.ReadJwtToken(input.JwtToken);
         }
 
         /// <summary>
         /// Validates the provided OAuth JWT token or Authorization header. 
-        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#Validate
+        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ValidateToken
         /// </summary>
         /// <param name="input">Parameters for the token validation</param>
         /// <param name="cancellationToken">The cancellation token for the task.</param>
         /// <returns>string</returns>
-        public static async Task<ParseResult> Validate(ValidateParseInput input, CancellationToken cancellationToken)
+        public static async Task<ParseResult> ValidateToken(ValidateParseInput input, CancellationToken cancellationToken)
         {
             return await ParseToken(input, new ParseOptions
             {
@@ -151,21 +151,20 @@ namespace Frends.Community.OAuth
                 return configuration;
             }
 
-            if (!ConfigurationManagerCache.TryGetValue(input.Issuer, out var configurationManager))
+            if (ConfigurationManagerCache.TryGetValue(input.Issuer, out var configurationManager))
+                return await configurationManager.GetConfigurationAsync(cancellationToken).ConfigureAwait(false);
+            await InitLock.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken).ConfigureAwait(false);
+            try
             {
-                await InitLock.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken).ConfigureAwait(false);
-                try
-                {
-                    configurationManager = ConfigurationManagerCache.GetOrAdd(input.Issuer, issuer =>
-                        new ConfigurationManager<OpenIdConnectConfiguration>(
-                            input.WellKnownConfigurationUrl,
-                            new OpenIdConnectConfigurationRetriever()
-                        ));
-                }
-                finally
-                {
-                    InitLock.Release();
-                }
+                configurationManager = ConfigurationManagerCache.GetOrAdd(input.Issuer, issuer =>
+                    new ConfigurationManager<OpenIdConnectConfiguration>(
+                        input.WellKnownConfigurationUrl,
+                        new OpenIdConnectConfigurationRetriever()
+                    ));
+            }
+            finally
+            {
+                InitLock.Release();
             }
 
             return await configurationManager.GetConfigurationAsync(cancellationToken).ConfigureAwait(false);

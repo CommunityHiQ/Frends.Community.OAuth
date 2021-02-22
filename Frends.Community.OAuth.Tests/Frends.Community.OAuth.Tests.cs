@@ -32,6 +32,9 @@ namespace Frends.Community.OAuth.Tests
             },
                 new ParseOptions { SkipLifetimeValidation = true }, // The token will be expired
                 CancellationToken.None).ConfigureAwait(false);
+
+            Assert.AreEqual(result.Token.Issuer, "https://frends.eu.auth0.com/");
+
         }
 
         private const string JwkKeys =
@@ -50,6 +53,9 @@ namespace Frends.Community.OAuth.Tests
             },
                 new ParseOptions { SkipLifetimeValidation = true },
                 CancellationToken.None).ConfigureAwait(false);
+
+            Assert.AreEqual(result.Token.Issuer, "https://frends.eu.auth0.com/");
+
         }
 
         /// <summary>
@@ -58,8 +64,8 @@ namespace Frends.Community.OAuth.Tests
         [Test]
         public void ReadToken_ShouldGetData()
         {
-            var input = new ReadTokenInput() { JWTToken = AuthHeader.Replace("Bearer ", "") };
-            var token = OAuthTasks.ReadToken(input);
+            var input = new ReadTokenInput() { JwtToken = AuthHeader.Replace("Bearer ", "") };
+            var token = OAuthTasks.ReadJwtToken(input);
             Assert.AreEqual(token.Issuer, "https://frends.eu.auth0.com/");
         }
 
@@ -71,8 +77,8 @@ namespace Frends.Community.OAuth.Tests
         [Test]
         public void ReadToken_ShouldGetDataFromShortToken()
         {
-            var input = new ReadTokenInput() { JWTToken = JwtExampleToken };
-            var token = OAuthTasks.ReadToken(input);
+            var input = new ReadTokenInput() { JwtToken = JwtExampleToken };
+            var token = OAuthTasks.ReadJwtToken(input);
             Assert.AreEqual(token.SignatureAlgorithm, "HS256");
             Assert.AreEqual(token.Issuer, null);
             Assert.AreEqual(token.Payload["name"], "John Doe");
@@ -146,7 +152,7 @@ rJ14RaKymgjKMsBnRupur7C9eUic2Csl9SLGZQl7tP5XcFJ98uy7NwuohGr+H1Pe
 Y3nMZ7rn5nvVYpRsNDPDMnTyq44phbbRCzNu8Imi33w55Y/gKVBY2lCn78IUbFtQ
 ohUljJuLe10H1uKRMtpSDAcCumLnMu5pA7M33E7WLPmxeAbCUdHrXvWADuwsnHlR
 zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
------END RSA PUBLIC KEY-----";
+-----END RSA PUBLIC KEY-----"; // public key, for later use if needed 
         [Test]
         public void CreateJwtTokenTest()
         {
