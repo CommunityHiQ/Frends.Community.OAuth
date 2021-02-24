@@ -7,10 +7,10 @@
 			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.ParseToken"
 		},
 		{
-			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.ReadToken"
+			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.ReadJwtToken"
 		},
 		{
-			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.Validate"
+			"TaskMethod": "Frends.Community.OAuth.OAuthTasks.ValidateToken"
 		}
 	]
 }
