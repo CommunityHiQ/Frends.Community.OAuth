@@ -156,3 +156,5 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 | ------- | ------- |
 | 1.0.0   | [Frends.Community.OAuth.Validate](https://github.com/CommunityHiQ/Frends.Community.OAuth.Validate) and [Frends.Community.JWT.CreateToken](https://github.com/CommunityHiQ/Frends.Community.JWT.CreateToken) merged as one task collection. |
 | 2.0.0   | Renaming ReadToken to ReadJwtToken. |
+| 2.1.0   | Tasks now imports correctly to frends. |
+
