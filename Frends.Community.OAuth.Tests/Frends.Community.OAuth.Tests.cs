@@ -162,7 +162,31 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
                 Expires = DateTime.Now.AddDays(7),
                 Issuer = "frends",
                 PrivateKey = privateKey,
+                SigningAlgorithm = SigningAlgorithm.RS256,
                 Claims = new []
+                {
+                    new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
+                }
+            });
+
+            Assert.AreNotEqual(null, token);
+            Assert.AreNotEqual(0, token.Length);
+
+            // JWT tokens always have 2 dot separators between parts
+            Assert.AreEqual(2, token.Count(o => o == '.'));
+        }
+
+        [Test]
+        public void CreateJwtTokenTestSymmetric()
+        {
+            var token = OAuthTasks.CreateJwtToken(new CreateJwtTokenInput
+            {
+                Audience = "aud",
+                Expires = DateTime.Now.AddDays(7),
+                Issuer = "frends",
+                PrivateKey = "AnySecretTextIsOKHere",
+                SigningAlgorithm = SigningAlgorithm.HS256,
+                Claims = new[]
                 {
                     new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
                 }

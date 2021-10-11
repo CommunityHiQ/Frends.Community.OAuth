@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using PemUtils;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -28,43 +29,57 @@ namespace Frends.Community.OAuth
         /// </summary>
         /// <param name="parameters">Parameters for the token creation</param>
         /// <returns>string</returns>
-        public static string CreateJwtToken(CreateJwtTokenInput parameters)
+        public static string CreateJwtToken([PropertyTab] CreateJwtTokenInput parameters)
         {
             var handler = new JwtSecurityTokenHandler();
+            SigningCredentials signingCredentials;
 
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(parameters.PrivateKey)))
-            using (var reader = new PemReader(stream))
+            // If signing algorithm is symmetric, key is not in PEM format
+            // and no stream is used to read it.
+            if (parameters.SigningAlgorithm.ToString().StartsWith("HS"))
             {
-                var rsaParameters = reader.ReadRsaKey();
-                var key = new RsaSecurityKey(rsaParameters);
-                var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
-
-                var claims = new ClaimsIdentity();
-                if (parameters.Claims != null)
-                {
-                    foreach (var claim in parameters.Claims)
-                    {
-                        claims.AddClaim(new Claim(claim.ClaimKey, claim.ClaimValue));
-                    }
-                }
-
-                // Create JWT
-                var token = handler.CreateJwtSecurityToken(new SecurityTokenDescriptor
-                {
-                    Issuer = parameters.Issuer,
-                    Audience = parameters.Audience,
-                    Expires = parameters.Expires,
-                    NotBefore = parameters.NotBefore,
-                    Subject = claims,
-                    SigningCredentials = signingCredentials,
-                });
-
-                return handler.WriteToken(token);
+                byte[] securityKey = Encoding.UTF8.GetBytes(parameters.PrivateKey);
+                var symmetricSecurityKey = new SymmetricSecurityKey(securityKey);
+                signingCredentials = new SigningCredentials(symmetricSecurityKey, MapSecurityAlgorithm(parameters.SigningAlgorithm.ToString()));
             }
+            else
+            // Default is to use stream and assume PEM format.
+            {
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(parameters.PrivateKey)))
+                using (var reader = new PemReader(stream))
+                {
+                    var rsaParameters = reader.ReadRsaKey();
+                    var key = new RsaSecurityKey(rsaParameters);
+                    signingCredentials = new SigningCredentials(key, MapSecurityAlgorithm(parameters.SigningAlgorithm.ToString()));
+                }
+            }
+
+            var claims = new ClaimsIdentity();
+            if (parameters.Claims != null)
+            {
+                foreach (var claim in parameters.Claims)
+                {
+                    claims.AddClaim(new Claim(claim.ClaimKey, claim.ClaimValue));
+                }
+            }
+
+            // Create JWT
+            var token = handler.CreateJwtSecurityToken(new SecurityTokenDescriptor
+            {
+                Issuer = parameters.Issuer,
+                Audience = parameters.Audience,
+                Expires = parameters.Expires,
+                NotBefore = parameters.NotBefore,
+                Subject = claims,
+                SigningCredentials = signingCredentials,
+            });
+
+            return handler.WriteToken(token);
         }
 
+
         /// <summary>
-        /// Parses the provided OAuth JWT token or Authorization header with the option of skipping validations 
+        /// Parses the provided OAuth JWT token or Authorization header with the option of skipping validations and decrypting token encryption
         /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ParseToken
         /// </summary>
         /// <param name="input">Parameters for the token parsing.</param>
@@ -74,6 +89,18 @@ namespace Frends.Community.OAuth
         public static async Task<ParseResult> ParseToken([PropertyTab] ValidateParseInput input, [PropertyTab] ParseOptions options, CancellationToken cancellationToken)
         {
             var config = await GetConfiguration(input, cancellationToken).ConfigureAwait(false);
+            var decryptionKeys = new List<SecurityKey>();
+
+            // Create key(s) for decryption if needed
+            if(options.DecryptToken)
+            {
+                using (var decStream = new MemoryStream(Encoding.UTF8.GetBytes(options.DecryptionKey)))
+                using (var decEeader = new PemReader(decStream))
+                {
+                    var encRsaParameters = decEeader.ReadRsaKey();
+                    decryptionKeys.Add(new RsaSecurityKey(encRsaParameters));
+                }
+            }
 
             TokenValidationParameters validationParameters =
                 new TokenValidationParameters
@@ -83,7 +110,8 @@ namespace Frends.Community.OAuth
                     IssuerSigningKeys = config.SigningKeys,
                     ValidateLifetime = !options.SkipLifetimeValidation,
                     ValidateAudience = !options.SkipAudienceValidation,
-                    ValidateIssuer = !options.SkipIssuerValidation
+                    ValidateIssuer = !options.SkipIssuerValidation,
+                    TokenDecryptionKeys = options.DecryptToken ? decryptionKeys : null
                 };
             var handler = new JwtSecurityTokenHandler();
             var user = handler.ValidateToken(input.GetToken(), validationParameters, out var validatedToken);
@@ -168,6 +196,33 @@ namespace Frends.Community.OAuth
             }
 
             return await configurationManager.GetConfigurationAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// An internal helper method to map visible algorithms names to .NET SecurityAlgorithms.
+        /// </summary>
+        /// <param name="algorithm">Algorithm as text</param>
+        /// <returns>.NET Algorithm as text</returns>
+        private static string MapSecurityAlgorithm(string algorithm)
+        {
+            switch (algorithm)
+            {
+                case "RS256":
+                    return SecurityAlgorithms.RsaSha256Signature;
+                case "RS384":
+                    return SecurityAlgorithms.RsaSha384Signature;
+                case "RS512":
+                    return SecurityAlgorithms.RsaSha512Signature;
+                case "HS256":
+                    return SecurityAlgorithms.HmacSha256Signature;
+                case "HS384":
+                    return SecurityAlgorithms.HmacSha384Signature;
+                case "HS512":
+                    return SecurityAlgorithms.HmacSha512Signature;
+                default:
+                    return SecurityAlgorithms.RsaSha256Signature;
+
+            }
         }
     }
 }

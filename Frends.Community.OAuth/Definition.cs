@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Frends.Community.OAuth
 {
+   
     /// <summary>
     /// Input parameters for CreateJwtToken task.
     /// </summary>
@@ -40,10 +41,17 @@ namespace Frends.Community.OAuth
         public DateTime? NotBefore { get; set; }
 
         /// <summary>
-        /// Private key for signing. The key should be in PEM format.
+        /// Private key for signing. The key should be in PEM format for asymmetric algorithms.
+        /// If symmetric algorithms is used, key can be any string.
         /// </summary>
         [PasswordPropertyText]
         public string PrivateKey { get; set; }
+
+        /// <summary>
+        /// Algorithm used for signing, default is RS256. HS256/HS384/HS512 are symmetric algorithms, RS256/RS384/RS512 asymmetric.
+        /// </summary>
+        [DefaultValue(SigningAlgorithm.RS256)]
+        public SigningAlgorithm SigningAlgorithm { get; set; }
 
         /// <summary>
         /// Value(s) for "sub" (Subject) Claim. Multiple claims with same keys/names can be added. Claims are optional.
@@ -70,6 +78,18 @@ namespace Frends.Community.OAuth
         /// Should lifetime (exp,nbf) validation be skipped 
         /// </summary>
         public bool SkipLifetimeValidation { get; set; }
+
+        /// <summary>
+        /// Should the Token be decrypted
+        /// </summary>
+        public bool DecryptToken { get; set; }
+
+        /// <summary>
+        /// Decryption key, should be in PEM format.
+        /// </summary>
+        [UIHint(nameof(DecryptToken), "", true)]
+        [PasswordPropertyText]
+        public string DecryptionKey { get; set; }
     }
 
     /// <summary>
@@ -171,6 +191,11 @@ namespace Frends.Community.OAuth
         WellKnownConfigurationUrl,
         Static
     }
+
+    /// <summary>
+    /// Algorithms for signing. HS* are symmetric algorithms, RS* asymmetric.
+    /// </summary>
+    public enum SigningAlgorithm { RS256, RS384, RS512, HS256, HS384, HS512 }
 
     /// <summary>
     /// Class for describing of a single claim
