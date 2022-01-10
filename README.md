@@ -126,19 +126,19 @@ The result is an object with following properties
 
 # Building
 
-Clone a copy of the repository
+Clone a copy of the repository.
 
 `git clone https://github.com/CommunityHiQ/Frends.Community.OAuth.git`
 
-Rebuild the project
+Build the project.
 
 `dotnet build`
 
-Run tests
+Run tests.
 
 `dotnet test`
 
-Create a NuGet package
+Create a NuGet package.
 
 `dotnet pack --configuration Release`
 

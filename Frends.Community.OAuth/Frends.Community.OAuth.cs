@@ -27,18 +27,17 @@ namespace Frends.Community.OAuth
         /// Create a JWT token with specified parameters. 
         /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#CreateToken
         /// </summary>
-        /// <param name="parameters">Parameters for the token creation</param>
+        /// <param name="parameters">Parameters for the token creation.</param>
         /// <returns>string</returns>
         public static string CreateJwtToken([PropertyTab] CreateJwtTokenInput parameters)
         {
             var handler = new JwtSecurityTokenHandler();
             SigningCredentials signingCredentials;
 
-            // If signing algorithm is symmetric, key is not in PEM format
-            // and no stream is used to read it.
+            // If signing algorithm is symmetric, key is not in PEM format and no stream is used to read it.
             if (parameters.SigningAlgorithm.ToString().StartsWith("HS"))
             {
-                byte[] securityKey = Encoding.UTF8.GetBytes(parameters.PrivateKey);
+                var securityKey = Encoding.UTF8.GetBytes(parameters.PrivateKey);
                 var symmetricSecurityKey = new SymmetricSecurityKey(securityKey);
                 signingCredentials = new SigningCredentials(symmetricSecurityKey, MapSecurityAlgorithm(parameters.SigningAlgorithm.ToString()));
             }
@@ -63,7 +62,7 @@ namespace Frends.Community.OAuth
                 }
             }
 
-            // Create JWT
+            // Create JWT token.
             var token = handler.CreateJwtSecurityToken(new SecurityTokenDescriptor
             {
                 Issuer = parameters.Issuer,
@@ -79,11 +78,11 @@ namespace Frends.Community.OAuth
 
 
         /// <summary>
-        /// Parses the provided OAuth JWT token or Authorization header with the option of skipping validations and decrypting token encryption
-        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ParseToken
+        /// Parses the provided OAuth JWT token or Authorization header with the option of skipping validations and decrypting token encryption.
+        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ParseToken.
         /// </summary>
         /// <param name="input">Parameters for the token parsing.</param>
-        /// <param name="options">Options to skip different validations in the token parsing. </param>
+        /// <param name="options">Options to skip different validations in the token parsing.</param>
         /// <param name="cancellationToken">The cancellation token for the task.</param>
         /// <returns>Object {ClaimsPrincipal ClaimsPrincipal, SecurityToken Token} </returns>
         public static async Task<ParseResult> ParseToken([PropertyTab] ValidateParseInput input, [PropertyTab] ParseOptions options, CancellationToken cancellationToken)
@@ -91,8 +90,8 @@ namespace Frends.Community.OAuth
             var config = await GetConfiguration(input, cancellationToken).ConfigureAwait(false);
             var decryptionKeys = new List<SecurityKey>();
 
-            // Create key(s) for decryption if needed
-            if(options.DecryptToken)
+            // Create key(s) for decryption if needed.
+            if (options.DecryptToken)
             {
                 using (var decStream = new MemoryStream(Encoding.UTF8.GetBytes(options.DecryptionKey)))
                 using (var decEeader = new PemReader(decStream))
@@ -102,8 +101,7 @@ namespace Frends.Community.OAuth
                 }
             }
 
-            TokenValidationParameters validationParameters =
-                new TokenValidationParameters
+            var validationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = input.Issuer,
                     ValidAudiences = new[] { input.Audience },
@@ -145,7 +143,7 @@ namespace Frends.Community.OAuth
         /// Validates the provided OAuth JWT token or Authorization header. 
         /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ValidateToken
         /// </summary>
-        /// <param name="input">Parameters for the token validation</param>
+        /// <param name="input">Parameters for the token validation.</param>
         /// <param name="cancellationToken">The cancellation token for the task.</param>
         /// <returns>string</returns>
         public static async Task<ParseResult> ValidateToken(ValidateParseInput input, CancellationToken cancellationToken)
@@ -171,7 +169,7 @@ namespace Frends.Community.OAuth
                 {
                     JsonWebKeySet = JsonConvert.DeserializeObject<JsonWebKeySet>(input.StaticJwksConfiguration)
                 };
-                foreach (SecurityKey key in configuration.JsonWebKeySet.GetSigningKeys())
+                foreach (var key in configuration.JsonWebKeySet.GetSigningKeys())
                 {
                     configuration.SigningKeys.Add(key);
                 }
@@ -197,6 +195,8 @@ namespace Frends.Community.OAuth
 
             return await configurationManager.GetConfigurationAsync(cancellationToken).ConfigureAwait(false);
         }
+
+        #region HelperMethods
 
         /// <summary>
         /// An internal helper method to map visible algorithms names to .NET SecurityAlgorithms.
@@ -224,5 +224,7 @@ namespace Frends.Community.OAuth
 
             }
         }
+
+        #endregion
     }
 }
