@@ -33,7 +33,8 @@ Task creates a signed JWT token.
 | Audience | `string` | The recipient(s) the JWT is intended for. | `COOL_AUDIENCE` |
 | Expires | `DateTime?` | The expiration time on or after which the JWT must not be accepted for processing. | `DateTime.Now.AddDays(7)` |
 | NotBefore | `DateTime?` | The time before which the JWT must not be accepted for processing. | `DateTime.Now.AddDays(7)` |
-| PrivateKey | `string` | Private key in PEM format | See https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail
+| PrivateKey | `string` | Private key in PEM format | See https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail |
+| SigningAlgorithm | enum<RS256, RS384, RS512, HS256, HS384, HS512> | Algorithm used for signing the token. | `RS256` |
 | Claims | `JwtClaim[]` | Claim(s) that identifiy the principal that is the subject of the JWT. Multiple claims with same keys/names can be added. Claims are optional. | `[`<br/>`{ "Name", "John Doe" },`<br/>`{ "EMail", "john@example.com" },`<br/>`{ "Roles", "admin" },`<br/>`{ "Roles", "user" }`<br/>`]`
 
 #### JwtClaim
@@ -73,6 +74,8 @@ Parses the provided OAuth JWT token or Authorization header. There is an option 
 | SkipIssuerValidation | `bool` | Should issuer validation be skipped | `false` |
 | SkipAudienceValidation | `bool` | Should audience validation be skipped | `false` |
 | SkipLifetimeValidation | `bool` | Should lifetime validation be skipped | `false` |
+| DecryptToken | `bool` | Should token be decrypted | `false` |
+| DecryptionKey | `string` | Decryption key in PEM format | See https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail |
 
 ### Result
 
@@ -123,19 +126,19 @@ The result is an object with following properties
 
 # Building
 
-Clone a copy of the repository
+Clone a copy of the repository.
 
 `git clone https://github.com/CommunityHiQ/Frends.Community.OAuth.git`
 
-Rebuild the project
+Build the project.
 
 `dotnet build`
 
-Run tests
+Run tests.
 
 `dotnet test`
 
-Create a NuGet package
+Create a NuGet package.
 
 `dotnet pack --configuration Release`
 
@@ -158,4 +161,4 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 | 2.0.0   | Renaming ReadToken to ReadJwtToken. |
 | 2.1.0   | Tasks now imports correctly to frends. |
 | 2.1.0   | Tasks now correctly saves in .Net Standard 2.0 processes. |
-
+| 2.3.0   | Signing algorithm and token decryption options added |

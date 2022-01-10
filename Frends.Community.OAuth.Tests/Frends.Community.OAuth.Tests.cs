@@ -30,7 +30,8 @@ namespace Frends.Community.OAuth.Tests
                 ConfigurationSource = ConfigurationSource.WellKnownConfigurationUrl,
                 WellKnownConfigurationUrl = "https://frends.eu.auth0.com/.well-known/openid-configuration"
             },
-                new ParseOptions { SkipLifetimeValidation = true }, // The token will be expired
+                // The token will be expired.
+                new ParseOptions { SkipLifetimeValidation = true },
                 CancellationToken.None).ConfigureAwait(false);
 
             Assert.AreEqual(result.Token.Issuer, "https://frends.eu.auth0.com/");
@@ -59,7 +60,7 @@ namespace Frends.Community.OAuth.Tests
         }
 
         /// <summary>
-        /// Read token and get Issuer
+        /// Read token and get Issuer.
         /// </summary>
         [Test]
         public void ReadToken_ShouldGetData()
@@ -72,7 +73,7 @@ namespace Frends.Community.OAuth.Tests
         private const string JwtExampleToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
         /// <summary>
-        /// Read short token and get multiple datas
+        /// Read short token and get multiple datas.
         /// </summary>
         [Test]
         public void ReadToken_ShouldGetDataFromShortToken()
@@ -140,6 +141,7 @@ WUn9Lb1U5eBP9HU+9VDQ+0lcwAW1imeWChvpA/D5wxTTzunwtMoieAb6SejgKzKI
 X27x0GAd9aYEZvDPk5zhikY2NuNicuzJ/XTYk4RHLxHw3b3F0X0t5POyPCvp+g==
 -----END RSA PRIVATE KEY-----";
 
+        // Public key, for later use if needed.
         private static readonly string publicKey = @"-----BEGIN RSA PUBLIC KEY-----
 MIICCgKCAgEA6rikDZp8k0liADpV6S6rMjzhcl3HySlSgNZwBbh3fz8OQ/wxk6fQ
 tiqw5zpuPpVjGibKPTmHayGR9CksE660RMv5GFl6OHpn7KhinvIiOe+SJ/vGOAU3
@@ -152,7 +154,7 @@ rJ14RaKymgjKMsBnRupur7C9eUic2Csl9SLGZQl7tP5XcFJ98uy7NwuohGr+H1Pe
 Y3nMZ7rn5nvVYpRsNDPDMnTyq44phbbRCzNu8Imi33w55Y/gKVBY2lCn78IUbFtQ
 ohUljJuLe10H1uKRMtpSDAcCumLnMu5pA7M33E7WLPmxeAbCUdHrXvWADuwsnHlR
 zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
------END RSA PUBLIC KEY-----"; // public key, for later use if needed 
+-----END RSA PUBLIC KEY-----";
         [Test]
         public void CreateJwtTokenTest()
         {
@@ -162,6 +164,7 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
                 Expires = DateTime.Now.AddDays(7),
                 Issuer = "frends",
                 PrivateKey = privateKey,
+                SigningAlgorithm = SigningAlgorithm.RS256,
                 Claims = new []
                 {
                     new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
@@ -171,7 +174,30 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
             Assert.AreNotEqual(null, token);
             Assert.AreNotEqual(0, token.Length);
 
-            // JWT tokens always have 2 dot separators between parts
+            // JWT tokens always have 2 dot separators between parts.
+            Assert.AreEqual(2, token.Count(o => o == '.'));
+        }
+
+        [Test]
+        public void CreateJwtTokenTestSymmetric()
+        {
+            var token = OAuthTasks.CreateJwtToken(new CreateJwtTokenInput
+            {
+                Audience = "aud",
+                Expires = DateTime.Now.AddDays(7),
+                Issuer = "frends",
+                PrivateKey = "AnySecretTextIsOKHere",
+                SigningAlgorithm = SigningAlgorithm.HS256,
+                Claims = new[]
+                {
+                    new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
+                }
+            });
+
+            Assert.AreNotEqual(null, token);
+            Assert.AreNotEqual(0, token.Length);
+
+            // JWT tokens always have 2 dot separators between parts.
             Assert.AreEqual(2, token.Count(o => o == '.'));
         }
     }
