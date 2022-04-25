@@ -24,18 +24,18 @@ namespace Frends.Community.OAuth
         private static readonly SemaphoreSlim InitLock = new SemaphoreSlim(1, 1);
 
         /// <summary>
-        /// Create a JWT token with specified parameters. 
+        /// Create a JWT token with specified parameters.
         /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#CreateToken
         /// </summary>
         /// <param name="parameters">Parameters for the token creation.</param>
         /// <returns>string</returns>
         public static string CreateJwtToken([PropertyTab] CreateJwtTokenInput parameters)
         {
-            var handler = new JwtSecurityTokenHandler();
             SigningCredentials signingCredentials;
+            bool isSymmetric = parameters.SigningAlgorithm.ToString().StartsWith("HS");
 
             // If signing algorithm is symmetric, key is not in PEM format and no stream is used to read it.
-            if (parameters.SigningAlgorithm.ToString().StartsWith("HS"))
+            if (isSymmetric)
             {
                 var securityKey = Encoding.UTF8.GetBytes(parameters.PrivateKey);
                 var symmetricSecurityKey = new SymmetricSecurityKey(securityKey);
@@ -49,33 +49,13 @@ namespace Frends.Community.OAuth
                 {
                     var rsaParameters = reader.ReadRsaKey();
                     var key = new RsaSecurityKey(rsaParameters);
-                    signingCredentials = new SigningCredentials(key, MapSecurityAlgorithm(parameters.SigningAlgorithm.ToString()));
-                }
-            }
-
-            var claims = new ClaimsIdentity();
-            if (parameters.Claims != null)
-            {
-                foreach (var claim in parameters.Claims)
-                {
-                    claims.AddClaim(new Claim(claim.ClaimKey, claim.ClaimValue));
+                    signingCredentials = new SigningCredentials(key, parameters.SigningAlgorithm.ToString());
                 }
             }
 
             // Create JWT token.
-            var token = handler.CreateJwtSecurityToken(new SecurityTokenDescriptor
-            {
-                Issuer = parameters.Issuer,
-                Audience = parameters.Audience,
-                Expires = parameters.Expires,
-                NotBefore = parameters.NotBefore,
-                Subject = claims,
-                SigningCredentials = signingCredentials,
-            });
-
-            return handler.WriteToken(token);
+            return CreateJwtToken(signingCredentials, parameters, isSymmetric);
         }
-
 
         /// <summary>
         /// Parses the provided OAuth JWT token or Authorization header with the option of skipping validations and decrypting token encryption.
@@ -102,15 +82,15 @@ namespace Frends.Community.OAuth
             }
 
             var validationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = input.Issuer,
-                    ValidAudiences = new[] { input.Audience },
-                    IssuerSigningKeys = config.SigningKeys,
-                    ValidateLifetime = !options.SkipLifetimeValidation,
-                    ValidateAudience = !options.SkipAudienceValidation,
-                    ValidateIssuer = !options.SkipIssuerValidation,
-                    TokenDecryptionKeys = options.DecryptToken ? decryptionKeys : null
-                };
+            {
+                ValidIssuer = input.Issuer,
+                ValidAudiences = new[] { input.Audience },
+                IssuerSigningKeys = config.SigningKeys,
+                ValidateLifetime = !options.SkipLifetimeValidation,
+                ValidateAudience = !options.SkipAudienceValidation,
+                ValidateIssuer = !options.SkipIssuerValidation,
+                TokenDecryptionKeys = options.DecryptToken ? decryptionKeys : null
+            };
             var handler = new JwtSecurityTokenHandler();
             var user = handler.ValidateToken(input.GetToken(), validationParameters, out var validatedToken);
 
@@ -140,7 +120,7 @@ namespace Frends.Community.OAuth
         }
 
         /// <summary>
-        /// Validates the provided OAuth JWT token or Authorization header. 
+        /// Validates the provided OAuth JWT token or Authorization header.
         /// Documentation: https://github.com/CommunityHiQ/Frends.Community.OAuth#ValidateToken
         /// </summary>
         /// <param name="input">Parameters for the token validation.</param>
@@ -209,22 +189,90 @@ namespace Frends.Community.OAuth
             {
                 case "RS256":
                     return SecurityAlgorithms.RsaSha256Signature;
+
                 case "RS384":
                     return SecurityAlgorithms.RsaSha384Signature;
+
                 case "RS512":
                     return SecurityAlgorithms.RsaSha512Signature;
+
                 case "HS256":
                     return SecurityAlgorithms.HmacSha256Signature;
+
                 case "HS384":
                     return SecurityAlgorithms.HmacSha384Signature;
+
                 case "HS512":
                     return SecurityAlgorithms.HmacSha512Signature;
+
                 default:
                     return SecurityAlgorithms.RsaSha256Signature;
-
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Returns signed JWTToken
+        /// If X509 Certificate thumbprint is given and the signing algorithm is asymmetric the x5t Header is added to the JWT Token Header
+        /// </summary>
+        /// <param name="signingCredentials"></param>
+        /// <param name="parameters"></param>
+        /// <param name="usesSymmetricAlgorithm"></param>
+        /// <returns></returns>
+        private static string CreateJwtToken(SigningCredentials signingCredentials, CreateJwtTokenInput parameters, bool usesSymmetricAlgorithm)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var claims = new ClaimsIdentity();
+            JwtSecurityToken secToken;
+
+            if (parameters.Claims != null)
+            {
+                foreach (var claim in parameters.Claims)
+                {
+                    claims.AddClaim(new Claim(claim.ClaimKey, claim.ClaimValue));
+                }
+            }
+
+            // x5t Header can be used only when the signing algorithm is asymmetric
+            if (!usesSymmetricAlgorithm && !string.IsNullOrEmpty(parameters.X509Thumbprint))
+            {
+                long expires = DateTimeToUnixTimeStamp(parameters.Expires ?? DateTime.Now.AddHours(1));
+                long notBefore = DateTimeToUnixTimeStamp(parameters.NotBefore ?? DateTime.Now);
+                long issuedAt = DateTimeToUnixTimeStamp(DateTime.Now);
+
+                JwtHeader header = new JwtHeader(signingCredentials);
+                header.Add("x5t", parameters.X509Thumbprint);
+
+                JwtPayload payload = new JwtPayload();
+                payload.AddClaims(claims.Claims);
+                payload.Add("nbf", notBefore);
+                payload.Add("exp", expires);
+                payload.Add("iat", issuedAt); // Static property, always DateTime.Now as unix timestamp
+                payload.Add("iss", parameters.Issuer);
+                payload.Add("aud", parameters.Audience);
+
+                secToken = new JwtSecurityToken(header, payload);
+            }
+            else
+            {
+                secToken = handler.CreateJwtSecurityToken(new SecurityTokenDescriptor
+                {
+                    Issuer = parameters.Issuer,
+                    Audience = parameters.Audience,
+                    Expires = parameters.Expires,
+                    NotBefore = parameters.NotBefore,
+                    Subject = claims,
+                    SigningCredentials = signingCredentials,
+                });
+            }
+
+            return handler.WriteToken(secToken);
+        }
+
+        private static long DateTimeToUnixTimeStamp(DateTime dt)
+        {
+            return ((DateTimeOffset)dt).ToUniversalTime().ToUnixTimeSeconds();
+        }
+
+        #endregion HelperMethods
     }
 }
