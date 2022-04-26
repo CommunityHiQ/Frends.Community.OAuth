@@ -35,11 +35,11 @@ namespace Frends.Community.OAuth.Tests
                 CancellationToken.None).ConfigureAwait(false);
 
             Assert.AreEqual(result.Token.Issuer, "https://frends.eu.auth0.com/");
-
         }
 
         private const string JwkKeys =
             "{\"keys\":[{\"alg\":\"RS256\",\"kty\":\"RSA\",\"use\":\"sig\",\"x5c\":[\"MIIDATCCAemgAwIBAgIJQSARkr+uIp3QMA0GCSqGSIb3DQEBCwUAMB4xHDAaBgNVBAMTE2ZyZW5kcy5ldS5hdXRoMC5jb20wHhcNMTgwMzI2MTEyNjU3WhcNMzExMjAzMTEyNjU3WjAeMRwwGgYDVQQDExNmcmVuZHMuZXUuYXV0aDAuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+O62mHn2qLVvdaTo9mVtRQTLOCxpBPS3HTFhSJIikDZ77jhyRJjLPGUa6udlgH36Ts8axRvcPHBq2i+Dah0tnbchNJwT7nQlpnB2CuhC+JCntffoA+q5VcJhvaPRBbI/D3QnjXlXY4n7mZKGovfQlFXlNScHI/A6YQ55MPGhui9Su0YLhNiC7wELTmR2L+rAyJJ+Tl0u1g+gLNHsTF18iJFfy6yUBLdtAgT/HeIyLblisdMrp8SMsOoWKQwUt4HA3sjF0FqyO8Rjz6RwOh6FpUTWGbUtHS/bV76QooMSfyi9tIMO5ISwpvFWPlDzIUxdqrBxJzPQUtlGkxWE41MBewIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBSwaPu0o5G98jCQF1FAD68sJtRcYjAOBgNVHQ8BAf8EBAMCAoQwDQYJKoZIhvcNAQELBQADggEBAJpBr0lbEYrhTHy2PzCaOtJICzal2oK2TCJC+T1F2Bx2XFF4XxYFwwa1W6cVkoM8NvutfnYgm1qR9JSIjIKw/Ks6kpJlVb3O7RK/3lARkxI09vfoF3OWMzh31uW6k4zZX9jDYIvdEAa1l3ROImfYY1eqo5L8rUJZdMf0h368ziyUYyRDGrrGSvWo9FDgQRKZ8BjJfZKZDjp100Bml+siYi/Rl6RTdTKpQHV34VYAEdw5RHRxMm1zEm1ebAngrDKArYWaMws3cMbKnPTyX7F3To9tLnijwsjJInmbUXo/KnXPsizJaiomNCXEw48f3oPoG9tFlItRqZzatv4PeMix8p8=\"],\"n\":\"-O62mHn2qLVvdaTo9mVtRQTLOCxpBPS3HTFhSJIikDZ77jhyRJjLPGUa6udlgH36Ts8axRvcPHBq2i-Dah0tnbchNJwT7nQlpnB2CuhC-JCntffoA-q5VcJhvaPRBbI_D3QnjXlXY4n7mZKGovfQlFXlNScHI_A6YQ55MPGhui9Su0YLhNiC7wELTmR2L-rAyJJ-Tl0u1g-gLNHsTF18iJFfy6yUBLdtAgT_HeIyLblisdMrp8SMsOoWKQwUt4HA3sjF0FqyO8Rjz6RwOh6FpUTWGbUtHS_bV76QooMSfyi9tIMO5ISwpvFWPlDzIUxdqrBxJzPQUtlGkxWE41MBew\",\"e\":\"AQAB\",\"kid\":\"MTUyRjI1QkYzQTg4NTI3OTQzRTczRTU3NUQ3NzgyODhBRDZBNTU3Mw\",\"x5t\":\"MTUyRjI1QkYzQTg4NTI3OTQzRTczRTU3NUQ3NzgyODhBRDZBNTU3Mw\"}]}";
+
         [Test]
         public async Task Validator_ShouldAcceptValidTokenWithStaticConfiguration()
         {
@@ -50,13 +50,11 @@ namespace Frends.Community.OAuth.Tests
                 AuthHeaderOrToken = AuthHeader,
                 ConfigurationSource = ConfigurationSource.Static,
                 StaticJwksConfiguration = JwkKeys,
-
             },
                 new ParseOptions { SkipLifetimeValidation = true },
                 CancellationToken.None).ConfigureAwait(false);
 
             Assert.AreEqual(result.Token.Issuer, "https://frends.eu.auth0.com/");
-
         }
 
         /// <summary>
@@ -155,8 +153,12 @@ Y3nMZ7rn5nvVYpRsNDPDMnTyq44phbbRCzNu8Imi33w55Y/gKVBY2lCn78IUbFtQ
 ohUljJuLe10H1uKRMtpSDAcCumLnMu5pA7M33E7WLPmxeAbCUdHrXvWADuwsnHlR
 zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
 -----END RSA PUBLIC KEY-----";
+
+        // X5t header value
+        private static readonly string x5t = "m5836ev678LlLGyFEdq+Ec71Inw=";
+
         [Test]
-        public void CreateJwtTokenTest()
+        public void CreateJwtTokenWithoutX5tTest()
         {
             var token = OAuthTasks.CreateJwtToken(new CreateJwtTokenInput
             {
@@ -165,7 +167,31 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
                 Issuer = "frends",
                 PrivateKey = privateKey,
                 SigningAlgorithm = SigningAlgorithm.RS256,
-                Claims = new []
+                Claims = new[]
+                {
+                    new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
+                }
+            });
+
+            Assert.AreNotEqual(null, token);
+            Assert.AreNotEqual(0, token.Length);
+
+            // JWT tokens always have 2 dot separators between parts.
+            Assert.AreEqual(2, token.Count(o => o == '.'));
+        }
+
+        [Test]
+        public void CreateJwtTokenWithX5tTest()
+        {
+            var token = OAuthTasks.CreateJwtToken(new CreateJwtTokenInput
+            {
+                Audience = "aud",
+                Expires = DateTime.Now.AddDays(7),
+                Issuer = "frends",
+                PrivateKey = privateKey,
+                SigningAlgorithm = SigningAlgorithm.RS256,
+                X509Thumbprint = x5t,
+                Claims = new[]
                 {
                     new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
                 }

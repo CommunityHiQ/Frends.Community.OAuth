@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Frends.Community.OAuth
 {
-   
     /// <summary>
     /// Input parameters for CreateJwtToken task.
     /// </summary>
@@ -39,6 +38,13 @@ namespace Frends.Community.OAuth
         /// </summary>
         [DefaultValue("DateTime.Now.AddDays(1)")]
         public DateTime? NotBefore { get; set; }
+
+        /// <summary>
+        /// Value for "x5t" (X.509 Certificate SHA-1 Thumbprint) Header
+        /// </summary>
+        [DisplayFormat(DataFormatString = "Text")]
+        [DefaultValue("X5T")]
+        public string X509Thumbprint { get; set; }
 
         /// <summary>
         /// Private key for signing.
@@ -144,6 +150,7 @@ namespace Frends.Community.OAuth
 
             return AuthHeaderOrToken;
         }
+
         /// <summary>
         /// Either the JWT token or the Authorization header value through #trigger.data.httpHeaders["Authorization"].
         /// </summary>
@@ -200,7 +207,8 @@ namespace Frends.Community.OAuth
     /// Algorithms for signing.
     /// HS* are symmetric algorithms, RS* asymmetric.
     /// </summary>
-    public enum SigningAlgorithm { RS256, RS384, RS512, HS256, HS384, HS512 }
+    public enum SigningAlgorithm
+    { RS256, RS384, RS512, HS256, HS384, HS512 }
 
     /// <summary>
     /// Class for describing of a single claim.
