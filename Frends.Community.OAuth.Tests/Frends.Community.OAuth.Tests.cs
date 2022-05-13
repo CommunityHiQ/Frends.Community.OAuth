@@ -158,7 +158,7 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
         private static readonly string x5t = "m5836ev678LlLGyFEdq+Ec71Inw=";
 
         [Test]
-        public void CreateJwtTokenWithoutX5tTest()
+        public void CreateJwtTokenWithoutX5tTestAndWithoutExtraHeaders()
         {
             var token = OAuthTasks.CreateJwtToken(new CreateJwtTokenInput
             {
@@ -171,6 +171,32 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
                 {
                     new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
                 }
+            });
+
+            Assert.AreNotEqual(null, token);
+            Assert.AreNotEqual(0, token.Length);
+
+            // JWT tokens always have 2 dot separators between parts.
+            Assert.AreEqual(2, token.Count(o => o == '.'));
+        }
+
+        [Test]
+        public void CreateJwtTokenWithoutX5tTest()
+        {
+            var token = OAuthTasks.CreateJwtToken(new CreateJwtTokenInput
+            {
+                Audience = "aud",
+                Expires = DateTime.Now.AddDays(7),
+                Issuer = "frends",
+                PrivateKey = privateKey,
+                SigningAlgorithm = SigningAlgorithm.RS256,
+                Claims = new[]
+                {
+                    new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
+                },
+                Headers = new [] {
+                    new JwtExtraHeader { HeaderKey = "kid", HeaderValue = "Cool Kid"}
+                }   
             });
 
             Assert.AreNotEqual(null, token);
@@ -194,7 +220,10 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
                 Claims = new[]
                 {
                     new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
-                }
+                },
+                Headers = new [] {
+                    new JwtExtraHeader { HeaderKey = "kid", HeaderValue = "Cool Kid"}
+                }  
             });
 
             Assert.AreNotEqual(null, token);
@@ -217,7 +246,10 @@ zewJ+E1/wBhCidA2kfZVXWfhmQksv8CMPDUEOajm22Cj4l4is1qiWO0CAwEAAQ==
                 Claims = new[]
                 {
                     new JwtClaim { ClaimKey = "Name", ClaimValue = "Jefim4ik" }
-                }
+                },
+                Headers = new [] {
+                    new JwtExtraHeader { HeaderKey = "kid", HeaderValue = "Cool Kid"}
+                }  
             });
 
             Assert.AreNotEqual(null, token);
