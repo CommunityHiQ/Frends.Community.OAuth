@@ -37,7 +37,7 @@ Task creates a signed JWT token.
 | X509Thumbprint | `string` | X509 Certificate SHA-1 Thumbprint for x5t header as Base64 encoded string. Added only if the SigningAlgorithm is asymmetric | `m5836ev678LlLGyFEdq+Ec71Inw=` |
 | SigningAlgorithm | enum<RS256, RS384, RS512, HS256, HS384, HS512> | Algorithm used for signing the token. | `RS256` |
 | Claims | `JwtClaim[]` | Claim(s) that identifiy the principal that is the subject of the JWT. Multiple claims with same keys/names can be added. Claims are optional. | `[`<br/>`{ "Name", "John Doe" },`<br/>`{ "EMail", "john@example.com" },`<br/>`{ "Roles", "admin" },`<br/>`{ "Roles", "user" }`<br/>`]`
-
+| Headers | `JwtExtraHeader[]` | Custom addition to header values in the JWT. normally not needed. | `[`<br/>`{ "kid", "John Doe" },`<br/>`{ "xxx", "xxx@xxxxx.com" }`<br/>`]`
 #### JwtClaim
 
 Each identifies the principal that is the subject of the JWT.
@@ -46,6 +46,16 @@ Each identifies the principal that is the subject of the JWT.
 | ---------------------| ---------------------| ------------------------------------ | ----- |
 | ClaimKey | `string` | Key value for the claim. | `COOL_ISSUER` |
 | ClaimValue | `string` | The value paired with the given key. | `COOL_AUDIENCE` |
+
+#### JwtExtraHeader
+
+Each identifies the key value pair of an extra JWT-header... not normally needed
+
+| Property             | Type                 | Description                          | Example |
+| ---------------------| ---------------------| ------------------------------------ | ----- |
+| HeaderKey | `string` | Key value for the Header. | `kid` |
+| HeaderValue | `string` | The value paired with the given key. | `John Doe` |
+
 
 ### Result
 
