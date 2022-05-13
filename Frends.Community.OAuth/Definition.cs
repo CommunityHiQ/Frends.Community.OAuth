@@ -67,6 +67,13 @@ namespace Frends.Community.OAuth
         /// Claims are optional.
         /// </summary>
         public JwtClaim[] Claims { get; set; }
+
+        /// <summary>
+        /// extra headers
+        /// 
+        /// usually there are no need to add these, but maybe eg. "kid" header would be nice.
+        /// </summary>
+        public JwtExtraHeader[] Headers { get; set; }
     }
 
     /// <summary>
@@ -224,5 +231,19 @@ namespace Frends.Community.OAuth
         /// Claim value.
         /// </summary>
         public string ClaimValue { get; set; }
+    }
+
+    public class JwtExtraHeader
+    {
+        /// <summary>
+        /// Header key.
+        /// </summary>
+        public string HeaderKey { get; set; }
+
+        /// <summary>
+        /// Header value.
+        /// </summary>
+        public string HeaderValue { get; set; }
+
     }
 }

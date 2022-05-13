@@ -241,6 +241,13 @@ namespace Frends.Community.OAuth
 
                 JwtHeader header = new JwtHeader(signingCredentials);
                 header.Add("x5t", parameters.X509Thumbprint);
+                if (parameters.Headers != null)
+                {
+                    foreach (var extraHeader in parameters.Headers)
+                    {
+                        header.Add(extraHeader.HeaderKey, extraHeader.HeaderValue);
+                    }
+                }
 
                 JwtPayload payload = new JwtPayload();
                 payload.AddClaims(claims.Claims);
