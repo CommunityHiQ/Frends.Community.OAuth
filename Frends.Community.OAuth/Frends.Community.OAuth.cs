@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.Net.Sockets;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
@@ -31,6 +32,22 @@ namespace Frends.Community.OAuth
         /// <returns>string</returns>
         public static string CreateJwtToken([PropertyTab] CreateJwtTokenInput parameters)
         {
+            if (parameters.SigningAlgorithm.ToString() == "HMACSHA256")
+            {
+                var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(parameters.PrivateKey));
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    Issuer = parameters.Issuer,
+                    Audience = parameters.Audience,
+                    SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                return tokenHandler.WriteToken(token);
+            }
+
             SigningCredentials signingCredentials;
             bool isSymmetric = parameters.SigningAlgorithm.ToString().StartsWith("HS");
 

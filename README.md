@@ -35,7 +35,7 @@ Task creates a signed JWT token.
 | NotBefore | `DateTime?` | The time before which the JWT must not be accepted for processing. | `DateTime.Now.AddDays(7)` |
 | PrivateKey | `string` | Private key in PEM format | See https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail |
 | X509Thumbprint | `string` | X509 Certificate SHA-1 Thumbprint for x5t header as Base64 encoded string. Added only if the SigningAlgorithm is asymmetric | `m5836ev678LlLGyFEdq+Ec71Inw=` |
-| SigningAlgorithm | enum<RS256, RS384, RS512, HS256, HS384, HS512> | Algorithm used for signing the token. | `RS256` |
+| SigningAlgorithm | enum<RS256, RS384, RS512, HS256, HS384, HS512, HMACSHA256> | Algorithm used for signing the token. | `RS256` |
 | Claims | `JwtClaim[]` | Claim(s) that identifiy the principal that is the subject of the JWT. Multiple claims with same keys/names can be added. Claims are optional. | `[`<br/>`{ "Name", "John Doe" },`<br/>`{ "EMail", "john@example.com" },`<br/>`{ "Roles", "admin" },`<br/>`{ "Roles", "user" }`<br/>`]`
 
 #### JwtClaim
@@ -164,3 +164,4 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 | 2.1.0   | Tasks now correctly saves in .Net Standard 2.0 processes. |
 | 2.3.0   | Signing algorithm and token decryption options added |
 | 2.4.0   | x5t Header option for JTWToken creation added |
+| 2.5.0   | Added support for HMACSHA256 encryption. |
