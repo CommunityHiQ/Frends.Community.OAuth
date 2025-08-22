@@ -208,7 +208,7 @@ namespace Frends.Community.OAuth
     /// HS* are symmetric algorithms, RS* asymmetric.
     /// </summary>
     public enum SigningAlgorithm
-    { RS256, RS384, RS512, HS256, HS384, HS512 }
+    { RS256, RS384, RS512, HS256, HS384, HS512, HMACSHA256 }
 
     /// <summary>
     /// Class for describing of a single claim.
